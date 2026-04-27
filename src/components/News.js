@@ -18,7 +18,13 @@ const News = (props) => {
   const updateNews = async () => {
     props.setProgress(10);
 
-    const url = `https://newsapi.org/v2/top-headlines?country=${props.country}&category=${props.category}&apiKey=7b998f9290964aa9a2485253d106db96&page=1&pageSize=${props.pageSize}`;
+    const params = new URLSearchParams({
+      country: props.country,
+      category: props.category,
+      page: '1',
+      pageSize: String(props.pageSize),
+    });
+    const url = `/api/news?${params.toString()}`;
 
     setLoading(true);
 
@@ -29,7 +35,7 @@ const News = (props) => {
     props.setProgress(50);
 
     setArticles(parsedData.articles || []);
-    setTotalResults(parsedData.totalResults);
+    setTotalResults(parsedData.totalResults || 0);
     setLoading(false);
     setPage(1);
 
@@ -46,14 +52,20 @@ const News = (props) => {
 
     const nextPage = page + 1;
 
-    const url = `https://newsapi.org/v2/top-headlines?country=${props.country}&category=${props.category}&apiKey=7b998f9290964aa9a2485253d106db96&page=${nextPage}&pageSize=${props.pageSize}`;
+    const params = new URLSearchParams({
+      country: props.country,
+      category: props.category,
+      page: String(nextPage),
+      pageSize: String(props.pageSize),
+    });
+    const url = `/api/news?${params.toString()}`;
 
     let data = await fetch(url);
     let parsedData = await data.json();
 
     setPage(nextPage);
-    setArticles(articles.concat(parsedData.articles || []));
-    setTotalResults(parsedData.totalResults);
+    setArticles((currentArticles) => currentArticles.concat(parsedData.articles || []));
+    setTotalResults(parsedData.totalResults || 0);
   };
 
   return (
